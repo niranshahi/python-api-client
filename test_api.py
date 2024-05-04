@@ -6,8 +6,11 @@ from utils.rest_api_client import RestApiClient
 
 api_url = "http://localhost:1400/api/"
 api_client = RestApiClient(api_url)
+print("\033[94m" +"Please enter username and password." +"\033[0m")
+userName = input("Username: ")
+password = input("Password: ")
 
-done = api_client.login("admin", "admin")
+done = api_client.login(userName, password)
 if done:
     print(f"Successfully logged in.")
 else:
