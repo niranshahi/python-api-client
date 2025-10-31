@@ -125,8 +125,7 @@ class RestApiClient:
             return None
         
         try:
-           
-             with open(shapefile_zip_path, 'rb') as f1, open(imageFile_path, 'rb') as f2:
+            with open(shapefile_zip_path, 'rb') as f1, open(imageFile_path, 'rb') as f2:
                 files = {
                      'shapefile': (f1.name, f1, 'application/x-zip-compressed'),
                      'imagefile': (f2.name, f2, 'image/tiff')
@@ -138,6 +137,41 @@ class RestApiClient:
                     return data
                 else:
                     return None
-        except  Exception as e:
+        except Exception as e:
             print("Error in register_datasource:", e)
-            return None              
+            return None
+
+    def bulk_upload_datasources(self, zip_file_path, common_metadata):
+        """
+        Bulk upload multiple shapefile-image pairs from a single ZIP file.
+
+        Args:
+            zip_file_path: Path to the ZIP file containing multiple pairs
+            common_metadata: Dictionary with common metadata for all resources
+
+        Returns:
+            Response from server with count and results
+        """
+        if not os.path.exists(zip_file_path):
+            print(f"Error: ZIP file path '{zip_file_path}' does not exist.")
+            return None
+
+        try:
+            with open(zip_file_path, 'rb') as f:
+                files = {
+                    'zipfile': (f.name, f, 'application/x-zip-compressed')
+                }
+                headers = {"Authorization": f"Bearer {self.token}"}
+                response = requests.post(
+                    self.base_url + "dataResource/bulkUpload",
+                    files=files,
+                    data=common_metadata,
+                    headers=headers
+                )
+                if response.status_code == 200:
+                    return response.json()
+                else:
+                    return None
+        except Exception as e:
+            print("Error in bulk_upload_datasources:", e)
+            return None
